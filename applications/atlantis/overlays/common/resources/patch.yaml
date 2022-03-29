@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: atlantis
+spec:
+  template:
+    spec:
+      serviceAccountName: atlantis
+      containers:
+        - name: atlantis
+          image: runderwood/atlantis-terragrunt:latest
+          env:
+            - name: ATLANTIS_REPO_ALLOWLIST
+              valueFrom:
+                secretKeyRef:
+                  name: atlantis-secrets
+                  key: gh_repository
+            - name: ATLANTIS_GH_USER
+              valueFrom:
+                secretKeyRef:
+                  name: atlantis-secrets
+                  key: gh_user
+            - name: ATLANTIS_GH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: atlantis-secrets
+                  key: gh_token
+            - name: ATLANTIS_GH_WEBHOOK_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: atlantis-secrets
+                  key: webhook-secret
+            - name: ATLANTIS_REPO_CONFIG_JSON
+              value: '{"repos":[{"id":"/.*/", "allowed_overrides":["apply_requirements","workflow"], "allow_custom_workflows":true}]}'
+            - name: ATLANTIS_LOG_LEVEL
+              value: "info"
+            - name: ATLANTIS_ENABLE_DIFF_MARKDOWN_FORMAT
+              value: "true"

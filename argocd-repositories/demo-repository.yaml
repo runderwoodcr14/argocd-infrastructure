@@ -1,0 +1,16 @@
+apiVersion: isindir.github.com/v1alpha3
+kind: SopsSecret
+metadata:
+    name: demo-repository-creds
+spec:
+    suspend: false
+    secretTemplates:
+        - name: demo-repository-creds
+          labels:
+            argocd.argoproj.io/secret-type: repo-creds
+          stringData:
+            type: git
+            url: git@github.com:{account}
+            sshPrivateKey: |
+                -----BEGIN OPENSSH PRIVATE KEY-----
+                -----END OPENSSH PRIVATE KEY-----

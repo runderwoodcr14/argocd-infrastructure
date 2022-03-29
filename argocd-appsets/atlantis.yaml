@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: atlantis
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: common
+            url: https://kubernetes.default.svc
+  template:
+    metadata:
+      name: "{{cluster}}-atlantis"
+    spec:
+      project: infrastructure
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        repoURL: git@github.com:{account}/{repository}.git
+        targetRevision: HEAD
+        path: applications/atlantis/overlays/{{cluster}}
+      destination:
+        server: "{{url}}"
+        namespace: atlantis

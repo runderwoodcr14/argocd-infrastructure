@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: atlantis
+
+bases:
+  - github.com/runatlantis/atlantis//kustomize
+
+resources:
+  - ./resources/secrets.yaml
+  - ./resources/ingress-internal.yaml
+  - ./resources/ingress-external.yaml
+  - ./resources/service-account.yaml
+
+patchesStrategicMerge:
+  - ./resources/patch.yaml

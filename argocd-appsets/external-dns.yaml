@@ -1,0 +1,42 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: external-dns
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  generators:
+    - list:
+        elements:
+          - cluster: common
+            url: https://kubernetes.default.svc
+          # - cluster: development
+          #   url: https://10.0.0.x
+          # - cluster: staging
+          #   url: https://10.0.0.x
+          # - cluster: production
+          #   url: https://10.0.0.x
+  template:
+    metadata:
+      name: "{{cluster}}-external-dns"
+    spec:
+      project: infrastructure
+      syncPolicy:
+        syncOptions:
+          - CreateNamespace=true
+        automated:
+          prune: true
+          selfHeal: true
+      source:
+        helm:
+          version: v3
+          valueFiles:
+            - values.yaml
+            - ../overlays/{{cluster}}/values.override.yaml
+        repoURL: git@github.com:{account}/{repository}.git
+        targetRevision: HEAD
+        path: applications/external-dns/external-dns
+      destination:
+        server: "{{url}}"
+        namespace: external-dns
